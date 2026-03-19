@@ -1,0 +1,74 @@
+# Quantization configuration for model optimization
+
+# Post-Training Quantization (PTQ)
+ptq:
+  enabled: true
+  backend: "qnnpack"  # qnnpack for CPU, fbgemm for server
+  calibration_samples: 100
+  per_channel: true
+  symmetric: true
+  observers:
+    - "HistogramObserver"
+    - "MinMaxObserver"
+  activation_observer: "HistogramObserver"
+  weight_observer: "MinMaxObserver"
+
+# Quantization-Aware Training (QAT)
+qat:
+  enabled: true
+  backend: "qnnpack"
+  epochs: 10
+  learning_rate: 0.001
+  calibration_samples: 50
+  per_channel: true
+  symmetric: true
+  fake_quantize: true
+  observers:
+    - "MovingAverageMinMaxObserver"
+    - "MovingAveragePerChannelMinMaxObserver"
+
+# Dynamic Quantization
+dynamic:
+  enabled: false
+  backend: "qnnpack"
+  weight_only: false
+
+# Static Quantization
+static:
+  enabled: true
+  backend: "qnnpack"
+  calibration_method: "histogram"
+  calibration_samples: 1000
+  per_channel: true
+
+# Quantization targets
+targets:
+  int8:
+    enabled: true
+    precision: 8
+    min_val: -128
+    max_val: 127
+  int16:
+    enabled: false
+    precision: 16
+    min_val: -32768
+    max_val: 32767
+  float16:
+    enabled: true
+    precision: 16
+    backend: "fbgemm"
+
+# Model-specific quantization settings
+model_settings:
+  parking_classifier:
+    input_quantization: true
+    output_quantization: true
+    weight_quantization: true
+    bias_quantization: false
+    activation_quantization: true
+  edge_optimized:
+    input_quantization: true
+    output_quantization: true
+    weight_quantization: true
+    bias_quantization: true
+    activation_quantization: true

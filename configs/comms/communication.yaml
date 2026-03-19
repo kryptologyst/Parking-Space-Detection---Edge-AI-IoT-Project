@@ -1,0 +1,181 @@
+# Communication configuration for IoT and edge devices
+
+# MQTT Configuration
+mqtt:
+  enabled: true
+  broker:
+    host: "localhost"
+    port: 1883
+    keepalive: 60
+    username: null
+    password: null
+    ssl: false
+    ca_cert: null
+    client_cert: null
+    client_key: null
+  
+  topics:
+    sensor_data: "parking/sensors/+/data"
+    predictions: "parking/predictions/+/result"
+    commands: "parking/commands/+/control"
+    status: "parking/status/+/health"
+  
+  qos:
+    sensor_data: 1  # At least once
+    predictions: 1
+    commands: 2      # Exactly once
+    status: 0        # At most once
+  
+  client:
+    client_id: "parking_detector"
+    clean_session: true
+    will_topic: "parking/status/offline"
+    will_message: "Device offline"
+    will_qos: 1
+    will_retain: false
+
+# WebSocket Configuration
+websocket:
+  enabled: false
+  host: "localhost"
+  port: 8765
+  ssl: false
+  path: "/ws"
+  ping_interval: 30
+  ping_timeout: 10
+
+# HTTP REST API Configuration
+rest_api:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8000
+  ssl: false
+  cors_enabled: true
+  rate_limit: 100  # requests per minute
+  timeout: 30
+
+# OPC-UA Configuration (for industrial systems)
+opcua:
+  enabled: false
+  endpoint: "opc.tcp://localhost:4840"
+  security_policy: "None"
+  security_mode: "None"
+  username: null
+  password: null
+  certificate: null
+  private_key: null
+
+# Kafka Configuration (for high-throughput scenarios)
+kafka:
+  enabled: false
+  bootstrap_servers: ["localhost:9092"]
+  topics:
+    sensor_data: "parking-sensor-data"
+    predictions: "parking-predictions"
+    alerts: "parking-alerts"
+  consumer:
+    group_id: "parking-detector-group"
+    auto_offset_reset: "latest"
+    enable_auto_commit: true
+  producer:
+    acks: "all"
+    retries: 3
+    batch_size: 16384
+    linger_ms: 10
+
+# Serial Communication (for MCU/sensor communication)
+serial:
+  enabled: false
+  port: "/dev/ttyUSB0"
+  baudrate: 9600
+  bytesize: 8
+  parity: "N"
+  stopbits: 1
+  timeout: 1
+  xonxoff: false
+  rtscts: false
+  dsrdtr: false
+
+# Network Configuration
+network:
+  retry_attempts: 3
+  retry_delay: 1.0
+  connection_timeout: 10.0
+  read_timeout: 30.0
+  write_timeout: 30.0
+  keepalive: true
+  keepalive_interval: 30
+  keepalive_probes: 3
+
+# Data Compression
+compression:
+  enabled: true
+  algorithm: "gzip"  # gzip, lz4, zstd
+  level: 6
+  threshold_bytes: 1024  # Only compress if data is larger than this
+
+# Encryption
+encryption:
+  enabled: false
+  algorithm: "AES-256-GCM"
+  key_size: 32
+  iv_size: 12
+  tag_size: 16
+
+# Message Format
+message_format:
+  protocol: "json"  # json, msgpack, protobuf
+  schema_version: "1.0"
+  timestamp_format: "iso8601"
+  timezone: "UTC"
+  
+  sensor_data_schema:
+    timestamp: "string"
+    spot_id: "string"
+    distance: "float"
+    lighting: "float"
+    motion_detected: "boolean"
+    temperature: "float"
+    humidity: "float"
+  
+  prediction_schema:
+    timestamp: "string"
+    spot_id: "string"
+    prediction: "string"
+    confidence: "float"
+    inference_time_ms: "float"
+    model_version: "string"
+
+# Quality of Service (QoS) Settings
+qos_settings:
+  sensor_data:
+    priority: "high"
+    reliability: "at_least_once"
+    latency_target_ms: 100
+    bandwidth_limit_kbps: 100
+  
+  predictions:
+    priority: "medium"
+    reliability: "at_least_once"
+    latency_target_ms: 200
+    bandwidth_limit_kbps: 50
+  
+  commands:
+    priority: "high"
+    reliability: "exactly_once"
+    latency_target_ms: 50
+    bandwidth_limit_kbps: 10
+  
+  status:
+    priority: "low"
+    reliability: "at_most_once"
+    latency_target_ms: 1000
+    bandwidth_limit_kbps: 1
+
+# Offline Mode Configuration
+offline_mode:
+  enabled: true
+  cache_size_mb: 100
+  cache_duration_hours: 24
+  sync_on_reconnect: true
+  conflict_resolution: "server_wins"  # server_wins, client_wins, timestamp_wins
